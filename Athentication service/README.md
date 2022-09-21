@@ -1,2 +1,1 @@
-*** Athentication service ***
-* I hope you **enjoy**
+* CIT 270 Athentication Service
