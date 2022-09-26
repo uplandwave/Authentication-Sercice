@@ -20,8 +20,9 @@ app.post("/login", (req,res)=>{
     console.log("loginEmail", loginEmail);
     const loginPassword = req.body.password;
     console.log("loginPassword", loginPassword);
+    // res.send("Who are you");
 
-    if (loginEmail == "richard@yourmom.net" && loginPassword == "Passw0rd"){
+    if (loginEmail == "dummythick@wow.net" && loginPassword == "W0wey!"){
         const token = uuidv4();
         res.send(token);
     } else{
@@ -30,3 +31,5 @@ app.post("/login", (req,res)=>{
     }
 
 })
+
+
