@@ -5,22 +5,20 @@ const port = 3000;
 const app = express();
 const {createClient} = require("redis")
 const md5 = require("md5")
+
 const redisClient= createClient(
     {
-        url:"redis:default@localhost:6379",
+        Url:"redis://default@localhost:6379",
     }
     )
     
-    // app.listen(port, async()=>{
-    //     await redisClient.connect();
-    //     console.log("Listening on port: ",port);
-    // })
+app.listen(port, async()=>{
+    await redisClient.connect();
+    console.log("Listening on port: ",port);
+    })
     
     app.use(bodyParser.json());
-    
-app.listen(port, async ()=>{
-    console.log("Listening on port "+port);
-})
+
 
 app.get("/", (req,res)=>{
     res.send("Hello world!")
