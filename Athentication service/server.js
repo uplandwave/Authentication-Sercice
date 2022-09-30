@@ -24,6 +24,13 @@ app.get("/", (req,res)=>{
     res.send("Hello world!")
 });
 
+app.post("/user", (req,res)=>{
+    const newUserRequestObject = req.body;
+    console.log("New User: ", JSON.stringify(newUserRequestObject));
+    redisClient.hSet("users",req.body.email, JSON.stringify(newUserRequestObject));
+    res.send("New User"+newUserRequestObject.email+" added")
+});
+
 app.post("/login", (req,res)=>{
     const loginEmail = req.body.userName;
     console.log(JSON.stringify(req.body));
