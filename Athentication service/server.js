@@ -27,11 +27,11 @@ app.get("/", (req,res)=>{
 app.post("/user", (req,res)=>{
     const newUserRequestObject = req.body;
     console.log("New User: ", JSON.stringify(newUserRequestObject));
-    redisClient.hSet("users",req.body.email, JSON.stringify(newUserRequestObject));
-    res.send("New User"+newUserRequestObject.email+" added")
+    redisClient.hSet("users",req.body.email,     JSON.stringify(newUserRequestObject));
+    res.send("New User "+newUserRequestObject.email+" added")
 });
 
-app.post("/login", (req,res)=>{
+app.post("/login", async(req,res)=>{
     const loginEmail = req.body.userName;
     console.log(JSON.stringify(req.body));
     console.log("loginEmail", loginEmail);
@@ -39,9 +39,16 @@ app.post("/login", (req,res)=>{
     console.log("loginPassword", loginPassword);
     // res.send("Who are you");
 
-    if (loginEmail == "dummythick@wow.net" && loginPassword == "W0wey!"){
+    const userString = await redisClient.hGet("users",loginEmail);
+    const userOpject = JSON.parse(userString)
+    if(userString == " "|| userString == null){
+        res.status(404);
+        res.send("User not found")
+    }
+    else if (loginEmail == userOpject.userName && loginPassword == userOpject.pasword){
         const token = uuidv4();
         res.send(token);
+    
     } else{
         res.status(401);//unothorized
         res.send("Invalid user or password");
