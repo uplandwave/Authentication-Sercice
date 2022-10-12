@@ -1,7 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const https =require("https");
+const fs = require("fs")
 const {v4 : uuidv4} = require("uuid");
-const port = 3000;
+const port = 4043;
 const app = express();
 const {createClient} = require("redis")
 const md5 = require("md5")
@@ -10,15 +12,22 @@ const redisClient= createClient(
     {
         Url:"redis://default@localhost:6379",
     }
-    )
-    
-app.listen(port, async()=>{
-    await redisClient.connect();
-    console.log("Listening on port: ",port);
-    })
-    
+);
+
     app.use(bodyParser.json());
 
+// app.listen(port, async()=>{
+//     await redisClient.connect();
+//     console.log("Listening on port: ",port);
+//     })
+    
+https.createServer({
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.cert'),
+}, app).listen(port, async () => {
+    await redisClient.connect();
+    console.log('Listening...')
+});
 
 app.get("/", (req,res)=>{
     res.send("Hello world!")
@@ -26,8 +35,14 @@ app.get("/", (req,res)=>{
 
 app.post("/user", (req,res)=>{
     const newUserRequestObject = req.body;
+    const loginPassword = req.body.password;
+    const hash = md5(loginPassword)
+    console.log(hash)
+    newUserRequestObject.password = hash
+    newUserRequestObject.verifyPassword = hash
     console.log("New User: ", JSON.stringify(newUserRequestObject));
     redisClient.hSet("users",req.body.email,     JSON.stringify(newUserRequestObject));
+
     res.send("New User "+newUserRequestObject.email+" added")
 });
 
@@ -36,8 +51,8 @@ app.post("/login", async(req,res)=>{
     console.log(JSON.stringify(req.body));
     console.log("loginEmail", loginEmail);
     const loginPassword = req.body.password;
+    const hash = md5(loginPassword)
     console.log("loginPassword", loginPassword);
-    // res.send("Who are you");
 
     const userString = await redisClient.hGet("users",loginEmail);
     const userOpject = JSON.parse(userString)
@@ -45,7 +60,7 @@ app.post("/login", async(req,res)=>{
         res.status(404);
         res.send("User not found")
     }
-    else if (loginEmail == userOpject.userName && loginPassword == userOpject.pasword){
+    else if (loginEmail == userOpject.userName && hash == userOpject.pasword){
         const token = uuidv4();
         res.send(token);
     
