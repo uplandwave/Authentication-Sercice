@@ -10,7 +10,7 @@ const md5 = require("md5")
 
 const redisClient= createClient(
     {
-        Url:"redis://default@localhost:6379",
+        url:"redis://default@34.68.63.203:6379",
     }
 );
 
@@ -31,9 +31,16 @@ const redisClient= createClient(
         cert: fs.readFileSync('server.cert'),
         ca: fs.readFileSync("chain.pem")
 }, app).listen(port, async () => {
-    await redisClient.connect();
     console.log('Listening...')
+    try{
+        await redisClient.connect();
+        console.log('Listening...')}
+        catch(error){
+            console.log
+        }
+    
 });
+
 
 app.get("/", (req,res)=>{
     res.send("Hello world!")
