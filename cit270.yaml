@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pixar
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pixar
+  template:
+    metadata:
+      name: pixar
+      labels:
+        app: pixar
+    spec:
+      containers: 
+      - name: pixar
+        image: uplandwave/cit270
+        volumeMounts:
+        - name: ssl
+          mountPath: "/usr/src/app/SSL"
+        command: ["npm"]
+        args: ["run", "start"]
+        resources:
+          requests:
+            cpu: 0.125
+            memory: 500Mi
+          limits:
+            cpu: 0.125
+            memory: 600Mi
+        imagePullPolicy: Always
+      volumes:
+      - name: ssl
+        secret: 
+          secretName: ssl.secret.pixar  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pixar-loadbalencer
+spec:
+  selector:
+    app: pixar
+  type: LoadBalancer
+  ports:
+  - port: 443
+    targetPort: 443
+  

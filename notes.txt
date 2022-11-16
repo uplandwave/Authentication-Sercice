@@ -1,0 +1,13 @@
+Git comands 
+git status - this will show you where your at 
+git add . <- or file name insted of the dot or maybe ** insted - dose not add hidden files. This starts a commit
+git commit -m "what you did to the file" 
+git push -u origin main
+
+
+    "userName": "richard@yourmom.net",
+    "email": "richard@yourmom.net",
+    "password": "Passw0rd ",
+    "phone": "9192873345",
+    "birthDate": "2002-06-04",
+    "verifyPassword": "Passw0rd"

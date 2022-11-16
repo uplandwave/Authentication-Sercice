@@ -1,0 +1,7 @@
+SSL
+server.key
+server.cert
+chain.pem
+.OS_Store
+.vscode
+# kubectl exec -it busybox-pixar /bin/sh   
