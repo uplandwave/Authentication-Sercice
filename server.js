@@ -25,11 +25,11 @@ const redisClient= createClient(
     //     await redisClient.connect();
     //     console.log("Listening on port: ",port);
     //     })
-    
+    // /usr/src/app/
     https.createServer({
-        key: fs.readFileSync('/usr/src/app/SSL/server.key'),
-        cert: fs.readFileSync('/usr/src/app/SSL/server.cert'),
-        ca: fs.readFileSync("/usr/src/app/SSL/chain.pem"),
+        key: fs.readFileSync('./SSL/server.key'),
+        cert: fs.readFileSync('./SSL/server.cert'),
+        ca: fs.readFileSync("./SSL/chain.pem"),
 }, app).listen(port, async () => {
     console.log('Listening...')
     try{
@@ -40,7 +40,6 @@ const redisClient= createClient(
         }
     
 });
-
 
 app.get("/", (req,res)=>{
     res.send("Kaden pipes down dudes!")
@@ -54,26 +53,26 @@ app.post("/user", (req,res)=>{
     newUserRequestObject.password = hash
     newUserRequestObject.verifyPassword = hash
     console.log("New User: ", JSON.stringify(newUserRequestObject));
-    redisClient.hSet("users",req.body.email,     JSON.stringify(newUserRequestObject));
+    redisClient.hSet("users",req.body.email,JSON.stringify(newUserRequestObject));
 
-    res.send("New User "+newUserRequestObject.email+" added")
+    res.send("New User "+newUserRequestObject.password+" added")
 });
 
 app.post("/login", async(req,res)=>{
     const loginEmail = req.body.userName;
     console.log(JSON.stringify(req.body));
     console.log("loginEmail", loginEmail);
-    const loginPassword = req.body.password;
-    const hash = md5(loginPassword)
+    const loginPassword = md5(req.body.password);
     console.log("loginPassword", loginPassword);
 
     const userString = await redisClient.hGet("users",loginEmail);
-    const userOpject = JSON.parse(userString)
+    const userObject = JSON.parse(userString)
+
     if(userString == " "|| userString == null){
         res.status(404);
         res.send("User not found")
     }
-    else if (loginEmail == userOpject.userName && hash == userOpject.pasword){
+    else if (loginEmail == userObject.userName && loginPassword == userObject.password){
         const token = uuidv4();
         res.send(token);
     
