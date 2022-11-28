@@ -22,6 +22,12 @@ spec:
           mountPath: "/usr/src/app/SSL"
         command: ["npm"]
         args: ["run", "start"]
+        env:
+        - name: REDIS_PASS
+          valueFrom:
+            secretKeyRef:
+              name: redis-secrets-pixar
+              key: REDIS_PASS
         resources:
           requests:
             cpu: 0.125

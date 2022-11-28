@@ -10,13 +10,13 @@ const md5 = require("md5")
 
 const redisClient= createClient(
     {
-        url:"redis://default@34.68.63.203:6379",
+        url:`redis://default:${proces.env.REDIS_PASS}@redis-stedi-pixar:6379`,
     }
 );
 
     app.use(bodyParser.json());
 
-    app.use(express.static("public")
+    app.use(express.static("public"))
 // https.createServer({
 //     key: fs.readFile("server.key"),
 //     cert: fs.readFileSync("server.cert"),
@@ -27,14 +27,14 @@ const redisClient= createClient(
     //     console.log("Listening on port: ",port);
     //     })
     // /usr/src/app/
-    https.createServer({
-        key: fs.readFileSync('./SSL/server.key'),
-        cert: fs.readFileSync('./SSL/server.cert'),
-        ca: fs.readFileSync("./SSL/chain.pem"),
+https.createServer({
+    key: fs.readFileSync('./SSL/server.key'),
+    cert: fs.readFileSync('./SSL/server.cert'),
+    ca: fs.readFileSync("./SSL/chain.pem"),
 }, app).listen(port, async () => {
     console.log('Listening...')
     try{
-        await redisClient.connect();
+    await redisClient.connect();
         console.log('Listening...')}
         catch(error){
             console.log
