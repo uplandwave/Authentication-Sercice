@@ -8,6 +8,8 @@ const app = express();
 const {createClient} = require('redis');
 const md5 = require('md5');
 const { json } = require('body-parser');
+const maxNumberoffailedlogins = 3;
+
 const redisClient = createClient(
 {
       url:`redis://default:${process.env.REDIS_PASS}@redis-stedi-pixar:6379`,
@@ -44,6 +46,10 @@ app.post('/login', async (req,res)=>{
     console.log('loginPasword',loginPassword);
     const userString=await redisClient.hGet('users',loginEmail);
     const userObject = JSON.parse(userString);
+    const userAttempts = userObject.userAttempts;
+    if (userAttempts > maxNumberoffailedlogins){
+        return res.status(469).send("Stop trying it's not working.")
+    }
     if(userString=='' || userString==null){
         res.status(404);
         res.send('User not found');
@@ -52,6 +58,8 @@ app.post('/login', async (req,res)=>{
         const token = uuidv4();
         res.send(token);
     } else{
+        userObject.userAttempts += 1
+        redisClient.hSet("users",req.loginEmail,JSON.stringify(userObject));
         res.status(401);//unauthorized
         res.send('Invalid user or password');
     }
