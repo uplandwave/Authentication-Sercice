@@ -38,6 +38,7 @@ app.post("/user", (req,res)=>{
     redisClient.hSet("users",req.body.email,JSON.stringify(newUserRequestObject));
     res.send("New User "+newUserRequestObject.password+" added")
 });
+var loginAttempts = {}
 app.post('/login', async (req,res)=>{
     const loginEmail = req.body.userName;
     console.log(JSON.stringify(req.body));
@@ -46,8 +47,9 @@ app.post('/login', async (req,res)=>{
     console.log('loginPasword',loginPassword);
     const userString=await redisClient.hGet('users',loginEmail);
     const userObject = JSON.parse(userString);
-    const userAttempts = userObject.userAttempts;
-    if (userAttempts > maxNumberoffailedlogins){
+    if (loginAttempts[loginEmail] == null) {loginAttempts[loginEmail] = 0}
+    // var userAttempts = userObject.userAttempts;
+    if (loginAttempts[loginEmail] >= maxNumberoffailedlogins){
         return res.status(469).send("Stop trying it's not working.")
     }
     if(userString=='' || userString==null){
@@ -58,9 +60,10 @@ app.post('/login', async (req,res)=>{
         const token = uuidv4();
         res.send(token);
     } else{
-        userObject.userAttempts += 1
+        // userObject.userAttempts += 1
+        loginAttempts[loginEmail] += 1
         redisClient.hSet("users",req.loginEmail,JSON.stringify(userObject));
         res.status(401);//unauthorized
-        res.send('Invalid user or password');
+        res.send(['Invalid user or password', loginAttempts]);
     }
 });
